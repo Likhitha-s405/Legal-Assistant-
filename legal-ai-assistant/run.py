@@ -8,7 +8,6 @@ import sys
 import os
 
 def run_with_custom_file():
-    """Run assistant with a custom file provided by user"""
     assistant = LegalAIAssistant()
     
     if len(sys.argv) > 1:
