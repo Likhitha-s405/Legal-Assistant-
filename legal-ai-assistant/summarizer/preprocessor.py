@@ -79,16 +79,32 @@ class Preprocessor:
             return f.read()
     
     def read_pdf_file(self, file_path: str) -> str:
+        """
+       Extract clean text from PDF using pypdf.
+       More reliable than PyPDF2.
+        """
         try:
-            import PyPDF2
-            text = ""
-            with open(file_path, 'rb') as f:
-                pdf_reader = PyPDF2.PdfReader(f)
-                for page in pdf_reader.pages:
-                    text += page.extract_text() + "\n"
-            return text
+            from pypdf import PdfReader
+        
+            reader = PdfReader(file_path)
+            text_parts = []
+
+            for page in reader.pages:
+                extracted = page.extract_text()
+                if extracted:
+                    text_parts.append(extracted)
+
+            full_text = "\n".join(text_parts)
+
+            if not full_text.strip():
+                return "[PDF contains no extractable text (possibly scanned image). OCR required.]"
+
+            return full_text
+
         except ImportError:
-            return "[PDF support requires PyPDF2. Please install: pip install PyPDF2]"
+            return "[PDF support requires pypdf. Please install: pip install pypdf]"
+        except Exception as e:
+            return f"[Error extracting PDF text: {str(e)}]"
     
     def read_docx_file(self, file_path: str) -> str:
         try:

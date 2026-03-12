@@ -11,7 +11,7 @@ class Planner:
         self.name = "Planner"
         self.agent_sequence = {
             "judgement": ["preprocessor", "summarizer", "formatter"],
-            "bail": ["summarizer", "formatter"],   # Skip preprocessor for bail
+            "bail": ["preprocessor","summarizer", "formatter"],   # Skip preprocessor for bail
             "unknown": ["preprocessor", "summarizer", "formatter"]  # Default fallback
         }
     

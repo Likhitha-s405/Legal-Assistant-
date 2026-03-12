@@ -13,7 +13,7 @@ def detect_document_type(file_path):
         text_lower = text.lower()
         
         # 2. Scoring system instead of immediate return
-        bail_keywords = ['bail application', 'regular bail', 'anticipatory bail', 'interim bail']
+        bail_keywords = ['bail application', 'regular bail', 'anticipatory bail', 'interim bail', 'bail order', 'bail hearing', 'bail petition']
         judgement_keywords = ['judgement', 'judgment', 'verdict', 'court order', 'crl.a.']
 
         bail_score = sum(1 for k in bail_keywords if k in text_lower)

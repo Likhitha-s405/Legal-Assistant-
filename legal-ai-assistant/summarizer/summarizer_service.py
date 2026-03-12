@@ -17,10 +17,22 @@ class LongDocSummarizer:
 
     async def summarize_bail(self, text: str):
     # This must match your training "prompt_style" 100%
-        prompt = f"""Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.
-
-### Instruction:
+        prompt = f"""### Instruction:
 Extract legal parameters into JSON format from this bail order.
+
+Required JSON fields:
+- case_title
+- court_name
+- judge_name
+- case_number
+- applicant_name
+- opposite_party
+- sections_invoked
+- police_station
+- district
+- order_date
+- bail_granted
+- bail_conditions
 
 ### Input:
 {text[:5000]}
