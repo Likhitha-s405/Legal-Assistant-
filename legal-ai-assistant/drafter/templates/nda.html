@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Non-Disclosure Agreement</title>
+    <style>
+        @page { size: A4; margin: 2.5cm; @bottom-right { content: "Page " counter(page); } }
+        body { font-family: 'Times New Roman', serif; line-height: 1.5; font-size: 11pt; }
+        h1 { text-align: center; font-size: 16pt; text-transform: uppercase; }
+        .clause { margin-bottom: 20px; text-align: justify; }
+        .clause-number { font-weight: bold; margin-right: 10px; }
+        .signature-section { margin-top: 50px; display: flex; justify-content: space-between; }
+        .signature-line { border-bottom: 1px solid #000; margin: 30px 0 5px; width: 100%; }
+    </style>
+</head>
+<body>
+    <h1>NON-DISCLOSURE AGREEMENT</h1>
+
+    {% for clause in clauses %}
+    <div class="clause">
+        <span class="clause-number">{{ loop.index }}.</span>
+        <span><strong>{{ clause.title }}</strong></span>
+        <div>{{ clause.text | safe }}</div>
+    </div>
+    {% endfor %}
+
+    <div class="signature-section">
+        <div style="width:45%">
+            <p><strong>DISCLOSING PARTY:</strong> {{ inputs.disclosing_party }}</p>
+            <div class="signature-line"></div>
+            <p>Signature / Date</p>
+        </div>
+        <div style="width:45%">
+            <p><strong>RECEIVING PARTY:</strong> {{ inputs.receiving_party }}</p>
+            <div class="signature-line"></div>
+            <p>Signature / Date</p>
+        </div>
+    </div>
+</body>
+</html>

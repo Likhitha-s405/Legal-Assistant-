@@ -1,0 +1,74 @@
+{
+    "parties": {
+        "title": "Parties",
+        "text": "THIS LEASE AGREEMENT is made on this [day] day of [month], [year] at [city] BETWEEN [lessor_name] (hereinafter called the 'Lessor', which expression shall include his heirs, successors, legal representatives and assigns) of the ONE PART AND [lessee_name] (hereinafter called the 'Lessee', which expression shall include his heirs, successors, legal representatives and assigns) of the OTHER PART."
+    },
+    "property_description": {
+        "title": "Description of Premises",
+        "text": "The Lessor hereby agrees to let out and the Lessee hereby agrees to take on lease the residential premises being [property_description] more particularly described in the Schedule hereunder written and hereinafter referred to as the 'demised premises'."
+    },
+    "schedule": {
+        "title": "Schedule of Property",
+        "text": "All that piece and parcel of the property situated at [property_address] and more particularly bounded as follows:\nNorth: [north_boundary]\nSouth: [south_boundary]\nEast: [east_boundary]\nWest: [west_boundary]\nTogether with all easements, rights, and appurtenances thereto belonging."
+    },
+    "term": {
+        "title": "Term of Lease",
+        "text": "The lease shall be for a period of [term_months] months commencing from [start_date] and ending on [end_date] (both days inclusive). The Lessee shall be entitled to a renewal for a further period on mutually agreeable terms, provided that the Lessee gives the Lessor a written notice of intention to renew at least [renewal_notice_days] days prior to the expiry of the term."
+    },
+    "rent": {
+        "title": "Rent",
+        "text": "The Lessee shall pay a monthly rent of Rs. [rent_amount] (Rupees [rent_amount_in_words] only) in advance on or before the [rent_due_day] day of each calendar month. The first payment shall be made on or before the execution of this agreement. The rent shall be paid by [payment_method] to the Lessor or his designated representative. In case of default in payment of rent within [grace_period] days of the due date, the Lessee shall pay interest at [late_interest_rate]% per annum on the outstanding amount."
+    },
+    "deposit": {
+        "title": "Security Deposit",
+        "text": "The Lessee has paid to the Lessor a sum of Rs. [deposit_amount] (Rupees [deposit_amount_in_words] only) as interest‑free security deposit, receipt whereof the Lessor hereby acknowledges. The deposit shall be refunded to the Lessee at the end of the tenancy, after deducting any amounts due towards rent, damages, or other charges, subject to a joint inspection of the premises."
+    },
+    "use_of_premises": {
+        "title": "Use of Premises",
+        "text": "The Lessee shall use the demised premises solely for residential purposes and shall not carry on any commercial, industrial, or illegal activity therein. The Lessee shall not cause any nuisance or annoyance to neighbors or do anything that may increase the insurance premium or cause the Lessor to be in breach of any law."
+    },
+    "utilities": {
+        "title": "Utilities and Outgoings",
+        "text": "The Lessee shall pay all charges for electricity, water, gas, and other utilities consumed at the premises, as well as any maintenance charges levied by the society or municipality. The Lessor shall pay the property taxes and other statutory levies assessed on the property."
+    },
+    "maintenance_lessee": {
+        "title": "Lessee's Maintenance Obligations",
+        "text": "The Lessee shall keep the interior of the premises in good and tenantable repair and condition (ordinary wear and tear excepted) and shall promptly notify the Lessor of any defect or damage requiring repair. The Lessee shall not make any structural alterations or additions without the prior written consent of the Lessor."
+    },
+    "maintenance_lessor": {
+        "title": "Lessor's Maintenance Obligations",
+        "text": "The Lessor shall be responsible for the maintenance and repair of the structural elements of the building, including the roof, external walls, and common areas, and for ensuring that the premises are habitable. If the Lessor fails to carry out necessary repairs within [repair_response_days] days of written notice, the Lessee may undertake the repairs and deduct the cost from the rent."
+    },
+    "quiet_enjoyment": {
+        "title": "Quiet Enjoyment",
+        "text": "The Lessor covenants that the Lessee, on paying the rent and observing the terms hereof, shall peaceably hold and enjoy the demised premises during the term without any interruption or disturbance from the Lessor or any person claiming under him."
+    },
+    "insurance": {
+        "title": "Insurance",
+        "text": "The Lessor shall maintain insurance on the building structure against fire and other risks. The Lessee is encouraged to insure his own belongings. Neither party shall do anything that may invalidate the insurance policies."
+    },
+    "indemnity": {
+        "title": "Indemnity",
+        "text": "The Lessee shall indemnify and keep the Lessor indemnified against all losses, damages, claims, and expenses arising from any breach of the Lessee's obligations hereunder or from any injury or damage caused by the Lessee's negligence or misuse of the premises."
+    },
+    "default": {
+        "title": "Default and Termination",
+        "text": "If the rent is unpaid for [default_days] days after due date, or if the Lessee commits any other breach of the terms and fails to remedy it within [cure_days] days of written notice, the Lessor may terminate the lease and re‑enter the premises. Such termination shall not affect the Lessor's right to claim arrears of rent and damages."
+    },
+    "surrender": {
+        "title": "Surrender and Vacant Possession",
+        "text": "Upon expiry or earlier termination of the lease, the Lessee shall hand over vacant possession of the premises in good condition (ordinary wear and tear accepted) and remove all his belongings. Any items left behind after [abandonment_days] days may be disposed of by the Lessor at the Lessee's cost."
+    },
+    "dispute_resolution": {
+        "title": "Dispute Resolution",
+        "text": "Any dispute arising out of or in connection with this agreement shall first be attempted to be resolved through mutual discussion. If not resolved within [negotiation_days] days, the dispute shall be referred to arbitration in accordance with the Arbitration and Conciliation Act, 1996. The arbitration shall be held in [arbitration_city] and conducted in English. The award of the arbitrator shall be final and binding on both parties."
+    },
+    "governing_law": {
+        "title": "Governing Law",
+        "text": "This agreement shall be governed by and construed in accordance with the laws of India. The courts in [jurisdiction_city] shall have exclusive jurisdiction over any matters arising hereunder."
+    },
+    "signatures": {
+        "title": "Signatures",
+        "text": "IN WITNESS WHEREOF, the parties have signed this agreement on the date and place first mentioned above.\n\n__________________________\nLessor\n\n__________________________\nLessee\n\nWITNESSES:\n1. ______________________\n2. ______________________"
+    }
+}
