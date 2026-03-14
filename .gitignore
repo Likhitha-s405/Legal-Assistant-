@@ -5,12 +5,13 @@
 __pycache__/
 *.pyc
 
-# Virtual environment
+# Virtual environments
 venv/
 .env/
-
-
-Dataset/
 legalenv/
 
+# Dataset or large files
+Dataset/
+
+# VS Code settings
 .vscode/
