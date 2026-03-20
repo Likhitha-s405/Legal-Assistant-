@@ -10,6 +10,7 @@ class Planner:
         clause_mapping = {
             'residential_lease': [
                 'parties',
+                'recitals',
                 'property_description',
                 'schedule',               
                 'term',

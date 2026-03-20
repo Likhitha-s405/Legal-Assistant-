@@ -3,12 +3,20 @@
         "title": "Parties",
         "text": "THIS LEASE AGREEMENT is made on this [day] day of [month], [year] at [city] BETWEEN [lessor_name] (hereinafter called the 'Lessor', which expression shall include his heirs, successors, legal representatives and assigns) of the ONE PART AND [lessee_name] (hereinafter called the 'Lessee', which expression shall include his heirs, successors, legal representatives and assigns) of the OTHER PART."
     },
+    "recitals": {
+        "title": "RECITALS",
+        "text": "WHEREAS the Lessor is absolutely seized and possessed of the residential premises situated at [property_address] and more particularly described in the Schedule hereunder written.\n\nAND WHEREAS the Lessee has requested the Lessor to let out the said premises on lease for residential purposes.\n\nAND WHEREAS the Lessor has agreed to let out the said premises to the Lessee on the following terms and conditions."
+    },
+    "title_guarantee": {
+        "title": "Lessor's Title",
+        "text": "The Lessor hereby covenants that he has good and marketable title to the demised premises and has full authority to let the same. The Lessor shall, at the request of the Lessee, produce all relevant title documents for inspection."
+    },
     "property_description": {
         "title": "Description of Premises",
         "text": "The Lessor hereby agrees to let out and the Lessee hereby agrees to take on lease the residential premises being [property_description] more particularly described in the Schedule hereunder written and hereinafter referred to as the 'demised premises'."
     },
     "schedule": {
-        "title": "Schedule of Property",
+        "title": "The Schedule Above Referred to",
         "text": "All that piece and parcel of the property situated at [property_address] and more particularly bounded as follows:\nNorth: [north_boundary]\nSouth: [south_boundary]\nEast: [east_boundary]\nWest: [west_boundary]\nTogether with all easements, rights, and appurtenances thereto belonging."
     },
     "term": {
