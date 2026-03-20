@@ -85,7 +85,13 @@ class LegalAIAssistant:
 
 
 # Initialize assistant
-assistant = LegalAIAssistant()
+assistant = None
+
+def get_assistant():
+    global assistant
+    if assistant is None:
+        assistant = LegalAIAssistant()
+    return assistant
 
 
 # ---------------------------------------------------

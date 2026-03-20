@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from drafter_main import draft_api
-from summarizer_main import assistant
+from summarizer_main import get_assistant
 
 app = FastAPI()
 
@@ -10,6 +10,7 @@ def home():
 
 @app.post("/summarize")
 def summarize(file_path: str):
+    assistant = get_assistant()
     return assistant.process_document(file_path)
 
 @app.post("/draft")
