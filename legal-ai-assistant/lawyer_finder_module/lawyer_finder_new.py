@@ -157,7 +157,7 @@ class LawyerFinder:
             logger.info(f"Database already has {existing_count} lawyers. Skipping sample data.")
             return
         
-        sample_lawyers = [
+        lawyers_database = [
             {
                 'name': 'John Smith',
                 'firm_name': 'Smith & Associates',
@@ -166,8 +166,8 @@ class LawyerFinder:
                 'phone': '212-555-0101',
                 'email': 'john.smith@smithlaw.com',
                 'address': '123 Main St',
-                'city': 'New York',
-                'state': 'NY',
+                'city': 'Trivandrum',
+                'state': 'Kerala',
                 'zip_code': '10001',
                 'latitude': 40.7500,
                 'longitude': -73.9967
@@ -180,50 +180,50 @@ class LawyerFinder:
                 'phone': '212-555-0102',
                 'email': 'sarah@johnsonlegal.com',
                 'address': '456 Park Ave',
-                'city': 'New York',
-                'state': 'NY',
+                'city': 'Trivandrum',
+                'state': 'Kerala',
                 'zip_code': '10022',
                 'latitude': 40.7580,
                 'longitude': -73.9685
             },
             {
-                'name': 'Michael Chen',
-                'firm_name': 'Chen Law Office',
+                'name': 'Hari Kumar',
+                'firm_name': 'HK Law Office',
                 'specialization': 'criminal defense, dui',
                 'experience_years': 8,
                 'phone': '212-555-0103',
-                'email': 'michael@chenlaw.com',
+                'email': 'hari@hklaw.com',
                 'address': '789 Broadway',
-                'city': 'New York',
-                'state': 'NY',
+                'city': 'Trivandrum',
+                'state': 'Kerala',
                 'zip_code': '10003',
                 'latitude': 40.7311,
                 'longitude': -73.9883
             },
             {
-                'name': 'Emily Rodriguez',
-                'firm_name': 'Rodriguez & Partners',
+                'name': 'Emily Joseph',
+                'firm_name': 'EJ & Partners',
                 'specialization': 'immigration, family law',
                 'experience_years': 12,
                 'phone': '212-555-0104',
-                'email': 'emily@rodriguezlaw.com',
+                'email': 'emily@ejlaw.com',
                 'address': '321 Lexingon Ave',
-                'city': 'New York',
-                'state': 'NY',
+                'city': 'Trivandrum',
+                'state': 'Kerala',
                 'zip_code': '10016',
                 'latitude': 40.7444,
                 'longitude': -73.9767
             },
             {
-                'name': 'David Kim',
-                'firm_name': 'Kim & Associates',
+                'name': 'Rani dev',
+                'firm_name': 'Rani & Associates',
                 'specialization': 'business law, contracts',
                 'experience_years': 20,
                 'phone': '212-555-0105',
-                'email': 'david@kimlaw.com',
+                'email': 'rani@ranilaw.com',
                 'address': '555 5th Ave',
-                'city': 'New York',
-                'state': 'NY',
+                'city': 'Trivandrum',
+                'state': 'Kerala',
                 'zip_code': '10017',
                 'latitude': 40.7559,
                 'longitude': -73.9786

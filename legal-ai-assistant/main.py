@@ -289,3 +289,124 @@ def process_document_api(file_path: str):
     """
     result = assistant.process_document(file_path)
     return result
+
+@app.get("/api/find-lawyers")
+async def find_lawyers(location: str = "", case_type: str = "general"):
+    """
+    Find lawyers based on location and case type
+    """
+    # Sample lawyer database
+    lawyers_database = [
+            {
+                'name': 'John Smith',
+                'firm_name': 'Smith & Associates',
+                'specialization': 'divorce, family law',
+                'experience_years': 15,
+                'phone': '212-555-0101',
+                'email': 'john.smith@smithlaw.com',
+                'address': '123 Main St',
+                'city': 'Trivandrum',
+                'state': 'Kerala',
+                'zip_code': '10001',
+                'latitude': 40.7500,
+                'longitude': -73.9967
+            },
+            {
+                'name': 'Sarah Johnson',
+                'firm_name': 'Johnson Legal',
+                'specialization': 'personal injury, medical malpractice',
+                'experience_years': 10,
+                'phone': '212-555-0102',
+                'email': 'sarah@johnsonlegal.com',
+                'address': '456 Park Ave',
+                'city': 'Trivandrum',
+                'state': 'Kerala',
+                'zip_code': '10022',
+                'latitude': 40.7580,
+                'longitude': -73.9685
+            },
+            {
+                'name': 'Hari Kumar',
+                'firm_name': 'HK Law Office',
+                'specialization': 'criminal defense, dui',
+                'experience_years': 8,
+                'phone': '212-555-0103',
+                'email': 'hari@hklaw.com',
+                'address': '789 Broadway',
+                'city': 'Trivandrum',
+                'state': 'Kerala',
+                'zip_code': '10003',
+                'latitude': 40.7311,
+                'longitude': -73.9883
+            },
+            {
+                'name': 'Emily Joseph',
+                'firm_name': 'EJ & Partners',
+                'specialization': 'immigration, family law',
+                'experience_years': 12,
+                'phone': '212-555-0104',
+                'email': 'emily@ejlaw.com',
+                'address': '321 Lexingon Ave',
+                'city': 'Trivandrum',
+                'state': 'Kerala',
+                'zip_code': '10016',
+                'latitude': 40.7444,
+                'longitude': -73.9767
+            },
+            {
+                'name': 'Rani dev',
+                'firm_name': 'Rani & Associates',
+                'specialization': 'business law, contracts',
+                'experience_years': 20,
+                'phone': '212-555-0105',
+                'email': 'rani@ranilaw.com',
+                'address': '555 5th Ave',
+                'city': 'Trivandrum',
+                'state': 'Kerala',
+                'zip_code': '10017',
+                'latitude': 40.7559,
+                'longitude': -73.9786
+            }
+        ]
+    
+    # Case type to specialization mapping
+    case_type_mapping = {
+        "divorce": ["divorce", "family law"],
+        "family_law": ["divorce", "family law"],
+        "personal_injury": ["personal injury", "medical malpractice", "accident"],
+        "criminal": ["criminal", "dui"],
+        "immigration": ["immigration", "citizenship"],
+        "business": ["business law", "contract"],
+        "contract": ["business law", "contract"],
+        "general": []  # Empty means show all
+    }
+    
+    # Get specializations for the selected case type
+    specializations = case_type_mapping.get(case_type.lower(), [])
+    
+    # Filter lawyers by specialization
+    filtered_lawyers = []
+    for lawyer in lawyers_database:
+        lawyer_specs = lawyer["specialization"].lower().split(", ")
+        
+        # If no specialization filter, show all
+        if not specializations:
+            filtered_lawyers.append(lawyer)
+        else:
+            # Check if lawyer specializes in the requested case type
+            for spec in specializations:
+                if spec in lawyer_specs:
+                    filtered_lawyers.append(lawyer)
+                    break
+    
+    # Simulate distance calculation (since we don't have actual geocoding)
+    import random
+    for lawyer in filtered_lawyers:
+        lawyer["distance_km"] = round(random.uniform(1, 15), 1)
+    
+    return {
+        "success": True,
+        "lawyers": filtered_lawyers,
+        "case_type": case_type,
+        "count": len(filtered_lawyers)
+    }
