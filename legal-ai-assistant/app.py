@@ -13,6 +13,3 @@ def summarize(file_path: str):
     assistant = get_assistant()
     return assistant.process_document(file_path)
 
-@app.post("/draft")
-def draft(data: dict):
-    return draft_api(data)

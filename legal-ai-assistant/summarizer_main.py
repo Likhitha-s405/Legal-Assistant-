@@ -50,24 +50,16 @@ class LegalAIAssistant:
         extracted_info_for_summary = {}
 
         # STEP 2: Preprocessing
-        if plan['next_agent'] == 'preprocessor':
+        
 
-            preprocess_result = self.preprocessor.process(file_path)
-            results["preprocessing"] = preprocess_result
+        preprocess_result = self.preprocessor.process(file_path)
+        results["preprocessing"] = preprocess_result
 
-            if preprocess_result.get("success"):
-                document_text_for_summary = preprocess_result.get("original_text", "")
-                extracted_info_for_summary = preprocess_result.get("extracted_info", {})
-            else:
-                return results
+        if not preprocess_result.get("success"):
+            return {"success": False, "error": preprocess_result.get("error", "Preprocessing failed")}
 
-        elif plan['next_agent'] == 'summarizer':
-
-            try:
-                with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
-                    document_text_for_summary = f.read()
-            except Exception as e:
-                return {"success": False, "error": str(e)}
+        document_text_for_summary = preprocess_result.get("original_text", "")
+        extracted_info_for_summary = preprocess_result.get("extracted_info", {})
 
         # STEP 3: Summarization
         if document_text_for_summary:
