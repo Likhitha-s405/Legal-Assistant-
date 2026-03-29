@@ -464,17 +464,23 @@ async function generateDraft() {
             // If PDF is available, show download button
             if (data.pdf_base64) {
                 downloadBtn.style.display = 'inline-block';
-    downloadBtn.onclick = () => {
-        // Save as HTML file instead of PDF
-        const htmlContent = atob(data.pdf_base64);
-        const blob = new Blob([htmlContent], {type: 'text/html'});
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = data.filename.replace('.pdf', '.html');
-        link.click();
-        URL.revokeObjectURL(url);
-    };
+                downloadBtn.onclick = () => {
+                    // Properly decode base64 and save as real PDF
+                    const byteCharacters = atob(data.pdf_base64);
+                    const byteNumbers = new Uint8Array(byteCharacters.length);
+                    for (let i = 0; i < byteCharacters.length; i++) {
+                        byteNumbers[i] = byteCharacters.charCodeAt(i);
+                    }
+                    const blob = new Blob([byteNumbers], { type: 'application/pdf' });
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = data.filename || 'legal_document.pdf';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(url);
+                };
             }
         } else {
             alert('Error: ' + (data.error || 'Unknown error'));
