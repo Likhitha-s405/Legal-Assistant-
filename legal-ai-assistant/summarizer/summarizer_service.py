@@ -3,22 +3,57 @@ import re
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from inference.inference import InferenceEngine
 
+
 class LongDocSummarizer:
     def __init__(self):
         self.engine = InferenceEngine()
-        # Use a single large chunking strategy to keep context intact
         self.text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=4000, 
+            chunk_size=4000,
             chunk_overlap=800,
             separators=["\n\n", "\n", ". ", " "]
         )
 
-    
     async def _safe_generate(self, prompt):
         return await self.engine.generate_async(prompt)
 
+    def _clean_output(self, raw: str) -> str:
+        """Clean judgement output — strips echoed prompt before ### Summary :"""
+        if not raw:
+            return ""
+        markers = [
+            "### Summary :\n", "### Summary:\n",
+            "### Summary : \n", "### Summary :  \n",
+            "### Summary :", "### Summary:",
+            "### summary :", "### summary:",
+        ]
+        for marker in markers:
+            idx = raw.rfind(marker)
+            if idx != -1:
+                cleaned = raw[idx + len(marker):].strip()
+                if cleaned:
+                    return cleaned
+        return raw.strip()
+
+    def _clean_bail_output(self, raw: str) -> str:
+        """Clean bail output — extracts JSON block after ### Response:"""
+        if not raw:
+            return ""
+        # Strip echoed prompt — extract after last ### Response:
+        for marker in ["### Response:", "### response:"]:
+            idx = raw.rfind(marker)
+            if idx != -1:
+                cleaned = raw[idx + len(marker):].strip()
+                if cleaned:
+                    return cleaned
+        # Fallback: extract raw JSON block if present
+        import re
+        match = re.search(r'\{.*\}', raw, re.DOTALL)
+        if match:
+            return match.group(0).strip()
+        return raw.strip()
+
+    # ── BAIL ──────────────────────────────────────────────────────────────────
     async def summarize_bail(self, text: str):
-    # This must match your training "prompt_style" 100%
         prompt = f"""### Instruction:
 Extract legal parameters into JSON format from this bail order.
 
@@ -41,101 +76,82 @@ Required JSON fields:
 
 ### Response:
 """
-        return await self._safe_generate(prompt)
+        raw = await self._safe_generate(prompt)
+        return self._clean_bail_output(raw)
 
+    # ── JUDGEMENT ─────────────────────────────────────────────────────────────
     async def summarize_judgement(self, text: str):
-        """EXACT PROMPT FROM YOUR JUDGEMENT FINETUNING"""
         chunks = self.text_splitter.split_text(text)
-        
+
+        # Single chunk — send directly
         if len(chunks) == 1:
             prompt = f"""### Instruction:
-Below is a legal judgement.Write a concise and accurate English summary that captures the key facts,issues, and the final decision.
+Below is a legal judgement. Write a concise and accurate English summary that captures the key facts, issues, and the final decision.
 
-### Judgement : 
+### Judgement :
 {chunks[0]}
 
 ### Summary :
 """
-            return await self._safe_generate(prompt)
+            raw = await self._safe_generate(prompt)
+            return self._clean_output(raw)
 
-        # For long judgements: summarize each chunk using the EXACT trained prompt format
-
+        # Multiple chunks — summarise each, then merge
         case_header = self._extract_case_header(text)
-        print(f"[Summarizer] Case header: {case_header[:100]}...")
+        print(f"[Summarizer] Processing {len(chunks)} chunks...")
 
-        print(f"[Summarizer] Processing {len(chunks)} judgment chunks...")
         summaries = []
         for i, chunk in enumerate(chunks):
-            print(f"[Summarizer] Sending chunk {i+1}/{len(chunks)}...")
-            if i == 0:
-                chunk_with_context = chunk
-            else:
-                chunk_with_context = f"{case_header}\n\n[...continued...]\n\n{chunk}"
-            p = f"""### Instruction:
-You are an expert legal annotator. You will be given a CHUNK of a larger judicial judgment. Your task is to summarize this specific chunk accurately without assuming it represents the final outcome of the entire case.
+            print(f"[Summarizer] Chunk {i+1}/{len(chunks)}...")
+            chunk_with_context = chunk if i == 0 else f"{case_header}\n\n[...continued...]\n\n{chunk}"
 
-Follow these strict rules:
-1. **Identify the Role of the Text:** Determine if the chunk is describing (A) The facts of the case, (B) Arguments by lawyers, (C) Historical case law/precedents cited by the judges, or (D) The final ruling of the court.
-2. **Do Not Conflate Precedents with the Current Case:** If the text mentions the "Privy Council," "House of Lords," or older cases, summarize them as *citations used for reasoning*, not as the court deciding this current appeal.
-3. **Avoid Premature Conclusions:** Do not write a definitive "HELD" or "Dismissed/Allowed" unless the text explicitly states the final order of the bench (usually found in the final chunk).
-4. **Be Concise:** Do not repeat statutory definitions if they were explained in previous paragraphs.
+            prompt = f"""### Instruction:
+You are an expert legal annotator. Summarize this chunk of a judicial judgment accurately. Do not assume it represents the final outcome of the entire case.
 
-### Judgement : 
-{chunk}
+Rules:
+1. Identify whether this chunk covers: facts, lawyer arguments, cited precedents, or the final ruling.
+2. Do not treat cited older cases as the current court's decision.
+3. Do not write a definitive HELD unless this chunk explicitly states the final order.
+4. Be concise.
+
+### Judgement :
+{chunk_with_context}
 
 ### Summary :
 """
-            res = await self._safe_generate(p)
-            if res:
-                clean = res.strip()
-                
-                print(f"[Summarizer] Chunk {i+1} done: {len(clean)} chars\n{clean}")
+            raw = await self._safe_generate(prompt)
+            if raw:
+                clean = self._clean_output(raw)
+                print(f"[Summarizer] Chunk {i+1} done: {len(clean)} chars")
                 summaries.append(clean)
             else:
-                print(f"[Summarizer] Chunk {i+1} returned no response, skipping.")
+                print(f"[Summarizer] Chunk {i+1} returned empty, skipping.")
 
         if not summaries:
             return None
 
-        # Deduplicate and merge — NO second model call, just clean text joining
-        merged = self._deduplicate_and_merge(summaries)
-        return merged
+        return self._deduplicate_and_merge(summaries)
 
+    # ── HELPERS ───────────────────────────────────────────────────────────────
     def _extract_case_header(self, text: str) -> str:
-        """
-    Extract the opening section of the judgement — typically contains
-    court name, case number, parties, and judge. Used as context anchor
-    for subsequent chunks so the model doesn't hallucinate case details.
-        """
-    # Take the first 500 chars — nearly always contains the case header
         header = text[:500].strip()
-    
-    # Clean up excessive whitespace
         header = re.sub(r'\n{3,}', '\n\n', header)
-    
         return header
 
     def _deduplicate_and_merge(self, summaries: list) -> str:
-        """
-        Merge chunk summaries by removing repeated sentences.
-        No model call — pure text dedup to avoid hallucination on foreign prompts.
-        """
         seen = []
         result_sentences = []
 
         for summary in summaries:
-            # Split on sentence boundaries
             sentences = [s.strip() for s in summary.replace('\n', ' ').split('. ') if s.strip()]
             for sentence in sentences:
                 if not sentence:
                     continue
-                # Skip if too similar to an already-seen sentence
-                is_dup = any(self._overlap(sentence, seen_s) > 0.70 for seen_s in seen)
+                is_dup = any(self._overlap(sentence, s) > 0.70 for s in seen)
                 if not is_dup:
                     result_sentences.append(sentence)
                     seen.append(sentence)
 
-        # Re-join into clean paragraphs (group every ~4 sentences)
         paragraphs = []
         for i in range(0, len(result_sentences), 4):
             para = '. '.join(result_sentences[i:i+4])
@@ -146,15 +162,14 @@ Follow these strict rules:
         return '\n\n'.join(paragraphs)
 
     def _overlap(self, a: str, b: str) -> float:
-        """Word-overlap ratio between two sentences."""
         a_words = set(a.lower().split())
         b_words = set(b.lower().split())
         if not a_words or not b_words:
             return 0.0
         return len(a_words & b_words) / max(len(a_words), len(b_words))
 
+    # ── ENTRY POINT ───────────────────────────────────────────────────────────
     async def summarize(self, full_text: str, doc_type: str = "judgement"):
-        """Main entry point"""
         if doc_type == "bail":
             return await self.summarize_bail(full_text)
         else:
