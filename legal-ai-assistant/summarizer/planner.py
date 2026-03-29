@@ -11,8 +11,8 @@ class Planner:
         self.name = "Planner"
         self.agent_sequence = {
             "judgement": ["preprocessor", "summarizer", "formatter"],
-            "bail": ["preprocessor","summarizer", "formatter"],   # Skip preprocessor for bail
-            "unknown": ["preprocessor", "summarizer", "formatter"]  # Default fallback
+            "bail": ["preprocessor","summarizer", "formatter"],   
+            "unknown": ["preprocessor", "summarizer", "formatter"]  
         }
     
     def plan(self, file_path: str) -> Dict[str, Any]:
@@ -67,8 +67,8 @@ class Planner:
     def _get_notes_for_doc_type(self, doc_type: str) -> str:
         """Get processing notes for the document type"""
         notes = {
-            "judgement": "Judgement detected. Will preprocess to extract structure, then summarize.",
-            "bail": "Bail document detected. Skipping preprocessing, going directly to summarization.",
+            "judgement": "Judgement detected. Will run full preprocessing, summarization, and formatting.",
+            "bail": "Bail document detected. Will run preprocessing, summarization, and formatting.",
             "unknown": "Document type not fully recognized. Will attempt preprocessing and summarization.",
             "non-legal": "Document rejected because it does not contain legal content."
         }

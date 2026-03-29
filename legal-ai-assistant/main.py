@@ -256,6 +256,9 @@ async def draft_document(
             return {"success": False, "error": "Drafter module not available"}
         
         result = drafter.draft(user_request)
+        with open("DEBUG_TEST.pdf", "wb") as f:
+            f.write(result['pdf'])
+        print("Created DEBUG_TEST.pdf - try opening this file directly.")
         
         if result['success']:
             pdf_base64 = base64.b64encode(result['pdf']).decode('utf-8')

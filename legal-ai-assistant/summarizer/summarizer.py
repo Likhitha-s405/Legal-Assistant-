@@ -19,8 +19,15 @@ class Summarizer:
             return {"success": False, "error": "No text provided"}
 
         print(f"[Summarizer] Starting {doc_type} processing...")
-    # Pass doc_type to the service
-        summary = asyncio.run(self.processor.summarize(text, doc_type))
+    
+        try:
+            summary = asyncio.run(self.processor.summarize(text, doc_type))
+        except Exception as e:
+            print(f"[Summarizer] Error during summarization: {e}")
+            import traceback
+            traceback.print_exc()
+            return {"success": False, "error": str(e)}
+
 
         return {
             "success": True,

@@ -1,2 +1,9 @@
-legalenv
-_pycache_
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pdf
+
+.env
+venv/
+legalenv/
