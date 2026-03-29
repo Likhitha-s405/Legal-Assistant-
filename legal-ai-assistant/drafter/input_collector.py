@@ -1,43 +1,43 @@
 # drafter/input_collector.py
+from datetime import datetime
 
 class InputCollector:
-    """Collects required input from user via CLI prompts."""
-    
-    def collect(self, plan, existing=None):
-        """Prompt user for all required fields based on agreement type."""
-        inputs = existing or {}
+    """Collects user inputs for required fields."""
+
+    # Default values for common fields
+    DEFAULTS = {
+        "day": lambda: datetime.now().strftime("%d"),
+        "month": lambda: datetime.now().strftime("%B"),
+        "year": lambda: datetime.now().strftime("%Y"),
+        "date": lambda: datetime.now().strftime("%d %B %Y"),
+        "rent_due_day": "5",
+        "grace_period": "5",
+        "late_interest_rate": "18",
+        "default_days": "10",
+        "cure_days": "15",
+        "abandonment_days": "30",
+        "negotiation_days": "30",
+        "arbitration_city": "Bangalore",
+        "jurisdiction_city": "Bangalore",
+    }
+
+    def collect(self, plan, existing_inputs=None):
+        """Collect inputs for the plan, merging with existing inputs."""
+        if existing_inputs is None:
+            existing_inputs = {}
         
-        # Define required fields per agreement type
-        fields_map = {
-            'residential_lease': [
-                'lessor_name', 'lessee_name',
-                'property_address',
-                'north_boundary', 'south_boundary', 'east_boundary', 'west_boundary',  # for schedule
-                'term_months', 'start_date',  
-                'rent_amount', 'rent_due_day', 'grace_period', 'late_interest_rate',
-                'deposit_amount',
-                'renewal_notice_days',
-                'repair_response_days',
-                'default_days', 'cure_days',
-                'abandonment_days',
-                'negotiation_days', 'arbitration_city', 'jurisdiction_city',
-                'city', 'day', 'month', 'year'
-            ],
-            'commercial_lease': [
-                'lessor_name', 'lessee_name', 'property_address',
-                'rent_amount', 'deposit_amount', 'term_months',
-                'rent_due_day', 'permitted_use', 'city', 'state'
-            ],
-            'nda': [
-                'disclosing_party', 'receiving_party', 'purpose',
-                'confidential_info_description', 'term_years'
-            ]
-        }
+        inputs = dict(existing_inputs)
+        agreement_type = plan.get("agreement_type", "residential_lease")
         
-        fields = fields_map.get(plan['agreement_type'], [])
-        print(f"\n--- Enter details for {plan['agreement_type']} ---")
-        for field in fields:
-            if field not in inputs:
-                value = input(f"{field.replace('_', ' ').title()}: ")
-                inputs[field] = value
+        # Set default values for missing fields
+        for key, default_value in self.DEFAULTS.items():
+            if key not in inputs:
+                if callable(default_value):
+                    inputs[key] = default_value()
+                else:
+                    inputs[key] = default_value
+        
+        # Set agreement type
+        inputs["agreement_type"] = agreement_type
+        
         return inputs
