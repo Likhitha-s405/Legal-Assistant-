@@ -38,5 +38,6 @@ class Formatter:
         return html
 
     def generate_pdf(self, html):
-        """Return HTML as bytes (since WeasyPrint is not working)"""
-        return html.encode('utf-8')
+        """Generate real PDF using WeasyPrint"""
+        from weasyprint import HTML
+        return HTML(string=html).write_pdf()
