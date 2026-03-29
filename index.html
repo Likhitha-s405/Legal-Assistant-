@@ -197,7 +197,7 @@
         <!-- Summarization Card -->
         <div class="card">
             <h2>📄 Summarize Legal Document</h2>
-            <p>Upload a legal document (TXT, PDF, DOCX) to get an AI-generated summary</p>
+            <p>Upload a legal document to get an AI-generated summary</p>
             
             <input type="file" id="fileInput" accept=".txt,.pdf,.docx">
             <button id="summarizeBtn" onclick="summarizeDocument()">Generate Summary</button>
@@ -378,10 +378,51 @@
                 summarizeBtn.disabled = false;
                 
                 if (data.success) {
-                    summaryText.innerHTML = data.summary || 'No summary generated';
+                    const docType = data.document_type || 'Unknown';
+
+                    // Try to parse as JSON (bail output)
+                    let summaryHTML = '';
+                    try {
+                        const raw = data.summary || '';
+                        const jsonMatch = raw.match(/\{[\s\S]*\}/);
+                        if (jsonMatch && docType === 'bail') {
+                            const parsed = JSON.parse(jsonMatch[0]);
+                            const labels = {
+                                case_title: 'Case Title',
+                                court_name: 'Court',
+                                judge_name: 'Judge',
+                                case_number: 'Case Number',
+                                applicant_name: 'Applicant',
+                                opposite_party: 'Opposite Party',
+                                sections_invoked: 'Sections Invoked',
+                                police_station: 'Police Station',
+                                district: 'District',
+                                order_date: 'Order Date',
+                                bail_granted: 'Bail Granted',
+                                bail_conditions: 'Bail Conditions'
+                            };
+                            summaryHTML = '<table style="width:100%;border-collapse:collapse;">';
+                            for (const [key, label] of Object.entries(labels)) {
+                                if (parsed[key]) {
+                                    summaryHTML += `
+                                        <tr style="border-bottom:1px solid #e0e0e0;">
+                                            <td style="padding:8px 12px;font-weight:bold;color:#667eea;width:35%;vertical-align:top;">${label}</td>
+                                            <td style="padding:8px 12px;">${parsed[key]}</td>
+                                        </tr>`;
+                                }
+                            }
+                            summaryHTML += '</table>';
+                        } else {
+                            summaryHTML = data.summary || 'No summary generated';
+                        }
+                    } catch(e) {
+                        summaryHTML = data.summary || 'No summary generated';
+                    }
+
+                    summaryText.innerHTML = summaryHTML;
                     documentInfo.innerHTML = `
-                        <strong>Document Type:</strong> ${data.document_type || 'Unknown'}<br>
-                        <strong>Processing Time:</strong> ${data.processing_time || 'N/A'} seconds
+                        <strong>Document Type:</strong> ${docType}<br>
+                      
                     `;
                     resultDiv.classList.add('show');
                 } else {
