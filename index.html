@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Legal AI Assistant - Summarize, Draft, Find Lawyers</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        h1 {
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        
+        h2 {
+            color: #764ba2;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 5px 12px;
+            background: #ef4444;
+            color: white;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .status.connected {
+            background: #10b981;
+        }
+        
+        input[type="text"], input[type="file"], select, textarea {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        
+        textarea {
+            resize: vertical;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            margin-top: 10px;
+            transition: transform 0.2s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+        }
+        
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .result-box {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+            display: none;
+        }
+        
+        .result-box.show {
+            display: block;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 30px;
+            display: none;
+        }
+        
+        .loading.show {
+            display: block;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .lawyer-card {
+            background: white;
+            padding: 15px;
+            margin-top: 10px;
+            border-radius: 10px;
+            border: 1px solid #e0e0e0;
+            transition: box-shadow 0.2s;
+        }
+        
+        .lawyer-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .lawyer-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #667eea;
+        }
+        
+        .error {
+            color: #dc2626;
+            background: #fee2e2;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        
+        hr {
+            margin: 15px 0;
+            border: none;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .note {
+            background: #fef3c7;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #92400e;
+            margin-top: 10px;
+        }
+        
+        .draft-text {
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header Card -->
+        <div class="card">
+            <h1>⚖️ Legal AI Assistant</h1>
+            <p>AI-powered legal document summarization, drafting & lawyer discovery</p>
+            <div class="status" id="status">🔌 Connecting...</div>
+        </div>
+        
+        <!-- Summarization Card -->
+        <div class="card">
+            <h2>📄 Summarize Legal Document</h2>
+            <p>Upload a legal document (TXT, PDF, DOCX) to get an AI-generated summary</p>
+            
+            <input type="file" id="fileInput" accept=".txt,.pdf,.docx">
+            <button id="summarizeBtn" onclick="summarizeDocument()">Generate Summary</button>
+            
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <p>Processing document with AI model...</p>
+                <p style="font-size: 12px; color: #666;">This may take 30-60 seconds</p>
+            </div>
+            
+            <div id="result" class="result-box">
+                <h3>📝 Summary</h3>
+                <div id="summaryText"></div>
+                <hr>
+                <div id="documentInfo"></div>
+            </div>
+        </div>
+        
+       
+       <!-- Drafting Card - Expanded with all fields -->
+<div class="card">
+    <h2>✍️ Draft Legal Document</h2>
+    <p>Create a legal document by filling out the form below</p>
+    
+    <select id="draftCaseType">
+        <option value="residential_lease">Residential Lease Agreement</option>
+        <option value="commercial_lease">Commercial Lease Agreement</option>
+        <option value="nda">Non-Disclosure Agreement (NDA)</option>
+    </select>
+    
+    <!-- Basic Information -->
+    <h3 style="margin-top: 20px; color: #667eea;">Basic Information</h3>
+    <input type="text" id="lessorName" placeholder="Lessor/Landlord Name *">
+    <input type="text" id="lesseeName" placeholder="Lessee/Tenant Name *">
+    <input type="text" id="propertyAddress" placeholder="Property Address *">
+    <input type="text" id="city" placeholder="City *">
+    
+    <!-- Lease Details -->
+    <h3 style="margin-top: 20px; color: #667eea;">Lease Details</h3>
+    <input type="text" id="termMonths" placeholder="Lease Term (months) *" >
+    <input type="text" id="startDate" placeholder="Start Date (e.g., 01 June 2025)" >
+    <input type="text" id="rentAmount" placeholder="Monthly Rent (INR) *" >
+    <input type="text" id="rentDueDay" placeholder="Rent Due Day (e.g., 5)" >
+    <input type="text" id="gracePeriod" placeholder="Grace Period (days)" >
+    <input type="text" id="lateInterestRate" placeholder="Late Payment Interest (%)" >
+    <input type="text" id="depositAmount" placeholder="Security Deposit (INR)" >
+    
+    <!-- Property Boundaries (for residential lease) -->
+    <h3 style="margin-top: 20px; color: #667eea;">Property Boundaries</h3>
+    <input type="text" id="northBoundary" placeholder="North Boundary">
+    <input type="text" id="southBoundary" placeholder="South Boundary">
+    <input type="text" id="eastBoundary" placeholder="East Boundary">
+    <input type="text" id="westBoundary" placeholder="West Boundary">
+    
+    <!-- Legal Terms -->
+    <h3 style="margin-top: 20px; color: #667eea;">Legal Terms</h3>
+    <input type="text" id="defaultDays" placeholder="Days before rent default" >
+    <input type="text" id="cureDays" placeholder="Days to cure breach" >
+    <input type="text" id="abandonmentDays" placeholder="Days for abandonment" >
+    <input type="text" id="negotiationDays" placeholder="Days for negotiation" >
+    <input type="text" id="arbitrationCity" placeholder="Arbitration City" >
+    <input type="text" id="jurisdictionCity" placeholder="Jurisdiction City" >
+    
+    <!-- Special Terms -->
+    <h3 style="margin-top: 20px; color: #667eea;">Special Terms (Optional)</h3>
+    <textarea id="specialTerms" rows="3" placeholder="Any special terms or conditions..."></textarea>
+    
+    <button onclick="generateDraft()">Generate Draft</button>
+    
+    <div id="draftLoading" class="loading">
+        <div class="spinner"></div>
+        <p>Generating draft...</p>
+        <p style="font-size: 12px; color: #666;">This may take 20-60 seconds for PDF generation</p>
+    </div>
+    
+    <div id="draftResult" class="result-box">
+        <h3>📝 Drafted Document</h3>
+        <div id="draftText" class="draft-text"></div>
+        <button onclick="copyToClipboard()" style="margin-top: 10px;">📋 Copy to Clipboard</button>
+        <button id="downloadPdfBtn" style="margin-top: 10px; margin-left: 10px; display: none;">📥 Download PDF</button>
+    </div>
+</div>
+        
+        <!-- Lawyer Finder Card -->
+        <div class="card">
+            <h2>📍 Find a Lawyer</h2>
+            <p>Find lawyers near your location based on case type</p>
+            
+            <input type="text" id="location" placeholder="Enter city, state (e.g., New York, NY)">
+            <select id="caseType">
+                <option value="general">General Legal</option>
+                <option value="divorce">Divorce / Family Law</option>
+                <option value="personal_injury">Personal Injury</option>
+                <option value="criminal">Criminal Defense</option>
+                <option value="immigration">Immigration</option>
+            </select>
+            <button onclick="findLawyers()">Find Lawyers Near Me</button>
+            
+            <div id="lawyerLoading" class="loading">
+                <div class="spinner"></div>
+                <p>Searching for lawyers...</p>
+            </div>
+            
+            <div id="lawyerResult" class="result-box">
+                <h3>📍 Nearby Lawyers</h3>
+                <div id="lawyersList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Backend URL
+        const API_URL = 'http://127.0.0.1:8000';
+        
+        // Check backend connection
+        async function checkConnection() {
+            const statusDiv = document.getElementById('status');
+            try {
+                const response = await fetch(`${API_URL}/test`);
+                if (response.ok) {
+                    statusDiv.textContent = '✅ Backend Connected';
+                    statusDiv.classList.add('connected');
+                } else {
+                    statusDiv.textContent = '⚠️ Backend Error';
+                }
+            } catch (error) {
+                statusDiv.textContent = '❌ Backend Not Connected';
+                console.error('Connection error:', error);
+            }
+        }
+        
+        // Load case types
+        async function loadCaseTypes() {
+            try {
+                const response = await fetch(`${API_URL}/api/case-types`);
+                const data = await response.json();
+                const select = document.getElementById('caseType');
+                if (data.case_types && select) {
+                    select.innerHTML = data.case_types.map(ct => 
+                        `<option value="${ct.id}">${ct.name}</option>`
+                    ).join('');
+                }
+            } catch (error) {
+                console.log('Using default case types');
+            }
+        }
+        
+        // Summarize document
+        async function summarizeDocument() {
+            const fileInput = document.getElementById('fileInput');
+            const loading = document.getElementById('loading');
+            const resultDiv = document.getElementById('result');
+            const summaryText = document.getElementById('summaryText');
+            const documentInfo = document.getElementById('documentInfo');
+            const summarizeBtn = document.getElementById('summarizeBtn');
+            
+            if (!fileInput.files[0]) {
+                alert('Please select a file to summarize');
+                return;
+            }
+            
+            loading.classList.add('show');
+            resultDiv.classList.remove('show');
+            summarizeBtn.disabled = true;
+            
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            
+            try {
+                const response = await fetch(`${API_URL}/api/summarize`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                loading.classList.remove('show');
+                summarizeBtn.disabled = false;
+                
+                if (data.success) {
+                    summaryText.innerHTML = data.summary || 'No summary generated';
+                    documentInfo.innerHTML = `
+                        <strong>Document Type:</strong> ${data.document_type || 'Unknown'}<br>
+                        <strong>Processing Time:</strong> ${data.processing_time || 'N/A'} seconds
+                    `;
+                    resultDiv.classList.add('show');
+                } else {
+                    alert('Error: ' + (data.error || 'Unknown error'));
+                }
+            } catch (error) {
+                loading.classList.remove('show');
+                summarizeBtn.disabled = false;
+                alert('Error: ' + error.message);
+            }
+        }
+        
+        // Generate Draft
+        // Generate Draft - Updated with all fields
+async function generateDraft() {
+    const caseType = document.getElementById('draftCaseType').value;
+    
+    // Collect all input fields
+    const inputs = {
+        agreement_type: caseType,
+        lessor_name: document.getElementById('lessorName').value,
+        lessee_name: document.getElementById('lesseeName').value,
+        property_address: document.getElementById('propertyAddress').value,
+        city: document.getElementById('city').value,
+        term_months: document.getElementById('termMonths').value,
+        start_date: document.getElementById('startDate').value,
+        rent_amount: document.getElementById('rentAmount').value,
+        rent_due_day: document.getElementById('rentDueDay').value,
+        grace_period: document.getElementById('gracePeriod').value,
+        late_interest_rate: document.getElementById('lateInterestRate').value,
+        deposit_amount: document.getElementById('depositAmount').value,
+        north_boundary: document.getElementById('northBoundary').value || 'Not specified',
+        south_boundary: document.getElementById('southBoundary').value || 'Not specified',
+        east_boundary: document.getElementById('eastBoundary').value || 'Not specified',
+        west_boundary: document.getElementById('westBoundary').value || 'Not specified',
+        default_days: document.getElementById('defaultDays').value,
+        cure_days: document.getElementById('cureDays').value,
+        abandonment_days: document.getElementById('abandonmentDays').value,
+        negotiation_days: document.getElementById('negotiationDays').value,
+        arbitration_city: document.getElementById('arbitrationCity').value,
+        jurisdiction_city: document.getElementById('jurisdictionCity').value,
+        special_terms: document.getElementById('specialTerms').value
+    };
+    
+    // Validate required fields
+    if (!inputs.lessor_name || !inputs.lessee_name || !inputs.property_address || !inputs.city) {
+        alert('Please fill in all required fields (*)');
+        return;
+    }
+    
+    const loading = document.getElementById('draftLoading');
+    const resultDiv = document.getElementById('draftResult');
+    const draftText = document.getElementById('draftText');
+    const downloadBtn = document.getElementById('downloadPdfBtn');
+    
+    loading.classList.add('show');
+    resultDiv.classList.remove('show');
+    downloadBtn.style.display = 'none';
+    
+    try {
+        // Build query parameters
+        const params = new URLSearchParams();
+        for (const [key, value] of Object.entries(inputs)) {
+            params.append(key, value);
+        }
+        
+        const response = await fetch(`${API_URL}/api/draft?${params.toString()}`, {
+            method: 'POST'
+        });
+        
+        const data = await response.json();
+        console.log('Drafter response:', data);  // Add this line
+        loading.classList.remove('show');
+       
+        if (data.success) {
+            // Show text preview
+            draftText.innerHTML = data.draft;
+            resultDiv.classList.add('show');
+            
+            // If PDF is available, show download button
+            if (data.pdf_base64) {
+                downloadBtn.style.display = 'inline-block';
+    downloadBtn.onclick = () => {
+        // Save as HTML file instead of PDF
+        const htmlContent = atob(data.pdf_base64);
+        const blob = new Blob([htmlContent], {type: 'text/html'});
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = data.filename.replace('.pdf', '.html');
+        link.click();
+        URL.revokeObjectURL(url);
+    };
+            }
+        } else {
+            alert('Error: ' + (data.error || 'Unknown error'));
+        }
+    } catch (error) {
+        loading.classList.remove('show');
+        alert('Error: ' + error.message);
+    }
+}
+        
+        // Copy to clipboard
+        function copyToClipboard() {
+            const draftText = document.getElementById('draftText').innerText;
+            navigator.clipboard.writeText(draftText).then(() => {
+                alert('Draft copied to clipboard!');
+            }).catch(() => {
+                alert('Could not copy to clipboard');
+            });
+        }
+        
+        // Find lawyers
+        async function findLawyers() {
+            const location = document.getElementById('location').value;
+            const caseType = document.getElementById('caseType').value;
+            const loading = document.getElementById('lawyerLoading');
+            const resultDiv = document.getElementById('lawyerResult');
+            const lawyersList = document.getElementById('lawyersList');
+            
+            if (!location) {
+                alert('Please enter your location');
+                return;
+            }
+            
+            loading.classList.add('show');
+            resultDiv.classList.remove('show');
+            
+            try {
+                const response = await fetch(`${API_URL}/api/find-lawyers?location=${encodeURIComponent(location)}&case_type=${caseType}`);
+                const data = await response.json();
+                
+                loading.classList.remove('show');
+                
+                if (data.success && data.lawyers && data.lawyers.length > 0) {
+                    let html = '';
+                    data.lawyers.forEach(lawyer => {
+                        html += `
+                            <div class="lawyer-card">
+                                <div class="lawyer-name">${lawyer.name}</div>
+                                <div>⚖️ ${lawyer.specialization || 'General Practice'}</div>
+                                <div>📍 ${lawyer.distance_km || '?'} km away</div>
+                                <div>📞 ${lawyer.phone || 'N/A'}</div>
+                            </div>
+                        `;
+                    });
+                    lawyersList.innerHTML = html;
+                    resultDiv.classList.add('show');
+                } else {
+                    lawyersList.innerHTML = `
+                        <div class="note">
+                            ⚠️ Lawyer database is being set up. Here are sample lawyers:
+                        </div>
+                        <div class="lawyer-card">
+                            <div class="lawyer-name">John Smith</div>
+                            <div>⚖️ Divorce & Family Law</div>
+                            <div>📍 3.2 km away</div>
+                        </div>
+                        <div class="lawyer-card">
+                            <div class="lawyer-name">Sarah Johnson</div>
+                            <div>⚖️ Personal Injury</div>
+                            <div>📍 5.8 km away</div>
+                        </div>
+                    `;
+                    resultDiv.classList.add('show');
+                }
+            } catch (error) {
+                loading.classList.remove('show');
+                lawyersList.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+                resultDiv.classList.add('show');
+            }
+        }
+        
+        // Initialize
+        checkConnection();
+        loadCaseTypes();
+    </script>
+</body>
+</html>

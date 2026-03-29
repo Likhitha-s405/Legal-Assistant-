@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from drafter_main import draft_api
-from summarizer_main import get_assistant
+from main import get_assistant
 
 app = FastAPI()
 
